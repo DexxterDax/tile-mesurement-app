@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { useState } from 'react';
 
 export default function Footer() {
@@ -28,7 +29,7 @@ export default function Footer() {
             >
               <div className="w-[180px] bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
                 <div className="aspect-square relative">
-                  <img
+                  <Image
                     src={member.image}
                     alt={member.name}
                     className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-300"

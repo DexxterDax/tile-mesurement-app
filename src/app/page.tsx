@@ -19,7 +19,7 @@ interface TileOption {
   maintenanceRating: number;  // 1-10 rating (10 being lowest maintenance)
 }
 
-const DEFAULT_COST_PER_SQFT = 456.00
+const DEFAULT_COST_PER_SQFT = 6.00
 
 export default function Home() {
   const [dimensions, setDimensions] = useState({

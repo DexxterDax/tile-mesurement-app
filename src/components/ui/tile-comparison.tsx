@@ -69,16 +69,22 @@ export function TileComparison({ options, roomArea, onSelectOption }: TileCompar
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Material Cost</span>
-                  <span className="font-medium">${costs.materialCost.toFixed(2)}</span>
+                  <span className="font-medium">
+                    ${costs.materialCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Labor Cost</span>
-                  <span className="font-medium">${costs.laborCost.toFixed(2)}</span>
+                  <span className="font-medium">
+                    ${costs.laborCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
                 </div>
                 <div className="pt-3 border-t border-gray-100">
                   <div className="flex justify-between items-baseline">
                     <span className="font-medium">Total Cost</span>
-                    <span className="text-xl font-bold">${costs.total.toFixed(2)}</span>
+                    <span className="text-xl font-bold">
+                      ${costs.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
                   </div>
                 </div>
               </div>
