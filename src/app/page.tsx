@@ -12,7 +12,8 @@ import { ArrowRight, X } from "lucide-react"
 interface TileOption {
   name: string;
   size: number;  // in inches
-  cost: number;  // per tile
+  cost: number;  // per box
+  tilesPerBox: number;
   durability: number;  // 1-10 rating
   aestheticRating: number;  // 1-10 rating
   laborCostPerSqFt: number;
@@ -27,6 +28,7 @@ export default function Home() {
     width: '',
     tileSize: '',
     tileCost: '',
+    tilesPerBox: '',
     laborCost: '',
     materialCost: ''
   })
@@ -35,6 +37,7 @@ export default function Home() {
   const [result, setResult] = useState<{
     totalArea: number;
     tilesNeeded: number;
+    boxesNeeded: number;
     totalCost: number;
     materialCost: number;
     laborCost: number;
@@ -44,7 +47,8 @@ export default function Home() {
     {
       name: "Ceramic Tile",
       size: 12, // 12 inches
-      cost: 5.99,
+      cost: 35.99,
+      tilesPerBox: 8,
       durability: 7,
       aestheticRating: 8,
       laborCostPerSqFt: 5.50,
@@ -54,6 +58,7 @@ export default function Home() {
       name: "Porcelain Tile",
       size: 12,
       cost: 8.99,
+      tilesPerBox: 10,
       durability: 9,
       aestheticRating: 9,
       laborCostPerSqFt: 6.00,
@@ -63,6 +68,7 @@ export default function Home() {
       name: "Natural Stone",
       size: 12,
       cost: 12.99,
+      tilesPerBox: 12,
       durability: 8,
       aestheticRating: 10,
       laborCostPerSqFt: 7.50,
@@ -77,7 +83,8 @@ export default function Home() {
     let roomLength = parseFloat(dimensions.length)
     let roomWidth = parseFloat(dimensions.width)
     const tileSizeInches = parseFloat(dimensions.tileSize)
-    const costPerTile = parseFloat(dimensions.tileCost)
+    const costPerBox = parseFloat(dimensions.tileCost)
+    const tilesPerBox = parseFloat(dimensions.tilesPerBox)
 
     // Convert feet to meters if needed
     if (!isMetric) {
@@ -89,7 +96,7 @@ export default function Home() {
     const tileSizeCm = tileSizeInches * 2.54
 
     // Validate inputs
-    if (!roomLength || !roomWidth || !tileSizeCm || !costPerTile) {
+    if (!roomLength || !roomWidth || !tileSizeCm || !costPerBox || !tilesPerBox) {
       alert('Please fill in all fields with valid numbers')
       return
     }
@@ -101,15 +108,16 @@ export default function Home() {
     // Calculate tile size in cm²
     const tileArea = tileSizeCm * tileSizeCm
 
-    // Calculate number of tiles needed (adding 10% for waste)
+    // Calculate number of boxes needed (adding 10% for waste)
     const baseTilesNeeded = Math.ceil(roomArea / tileArea)
     const tilesWithWaste = Math.ceil(baseTilesNeeded * 1.1)
+    const boxesNeeded = Math.ceil(tilesWithWaste / tilesPerBox)
+    const tileMaterialCost = boxesNeeded * costPerBox
 
     const laborCostPerSqFt = parseFloat(dimensions.laborCost) || DEFAULT_COST_PER_SQFT
     const additionalMaterialCost = parseFloat(dimensions.materialCost) || 0
 
     // Calculate total costs
-    const tileMaterialCost = tilesWithWaste * costPerTile
     const laborCost = roomAreaSqFt * laborCostPerSqFt
     const totalMaterialCost = tileMaterialCost + additionalMaterialCost
     const totalCost = totalMaterialCost + laborCost
@@ -117,6 +125,7 @@ export default function Home() {
     setResult({
       totalArea: roomArea / 10000, // convert back to m² for display
       tilesNeeded: tilesWithWaste,
+      boxesNeeded: boxesNeeded,
       totalCost: Number(totalCost.toFixed(2)),
       materialCost: Number(totalMaterialCost.toFixed(2)),
       laborCost: Number(laborCost.toFixed(2))
@@ -221,25 +230,36 @@ export default function Home() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Cost per Tile ($)</label>
+                  <label className="text-sm font-medium mb-2 block">Cost per Box ($)</label>
                   <Input 
                     type="number" 
-                    placeholder="Enter cost per tile"
+                    placeholder="Enter cost per box of tiles"
                     value={dimensions.tileCost}
                     onChange={(e) => setDimensions(prev => ({...prev, tileCost: e.target.value}))}
                     className="bg-white border-gray-200"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Labor Cost ($/sq ft)</label>
+                  <label className="text-sm font-medium mb-2 block">Tiles per Box</label>
                   <Input 
                     type="number" 
-                    placeholder="Enter labor cost per sq ft"
-                    value={dimensions.laborCost}
-                    onChange={(e) => setDimensions(prev => ({...prev, laborCost: e.target.value}))}
+                    placeholder="Enter number of tiles per box"
+                    value={dimensions.tilesPerBox}
+                    onChange={(e) => setDimensions(prev => ({...prev, tilesPerBox: e.target.value}))}
                     className="bg-white border-gray-200"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Labor Cost ($/sq ft)</label>
+                <Input 
+                  type="number" 
+                  placeholder="Enter labor cost per sq ft"
+                  value={dimensions.laborCost}
+                  onChange={(e) => setDimensions(prev => ({...prev, laborCost: e.target.value}))}
+                  className="bg-white border-gray-200"
+                />
               </div>
 
               <div>
@@ -276,6 +296,10 @@ export default function Home() {
                   <div>
                     <div className="text-sm text-gray-500 mb-1">Total Area</div>
                     <div className="text-2xl font-semibold">{result.totalArea.toFixed(2)} m²</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 mb-1">Boxes Required</div>
+                    <div className="text-2xl font-semibold">{result.boxesNeeded} boxes</div>
                   </div>
                   <div>
                     <div className="text-sm text-gray-500 mb-1">Tiles Required</div>
