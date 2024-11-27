@@ -26,7 +26,9 @@ export default function Home() {
     length: '',
     width: '',
     tileSize: '',
-    tileCost: ''
+    tileCost: '',
+    laborCost: '',
+    materialCost: ''
   })
 
   const [isMetric, setIsMetric] = useState(false)
@@ -103,22 +105,20 @@ export default function Home() {
     const baseTilesNeeded = Math.ceil(roomArea / tileArea)
     const tilesWithWaste = Math.ceil(baseTilesNeeded * 1.1)
 
-    // Find selected tile option to get labor cost
-    const selectedTile = tileOptions.find(t => 
-      t.size === tileSizeInches && t.cost === costPerTile
-    )
-    const laborCostPerSqFt = selectedTile?.laborCostPerSqFt || DEFAULT_COST_PER_SQFT // default if not found
+    const laborCostPerSqFt = parseFloat(dimensions.laborCost) || DEFAULT_COST_PER_SQFT
+    const additionalMaterialCost = parseFloat(dimensions.materialCost) || 0
 
     // Calculate total costs
-    const materialCost = tilesWithWaste * costPerTile
+    const tileMaterialCost = tilesWithWaste * costPerTile
     const laborCost = roomAreaSqFt * laborCostPerSqFt
-    const totalCost = materialCost + laborCost
+    const totalMaterialCost = tileMaterialCost + additionalMaterialCost
+    const totalCost = totalMaterialCost + laborCost
 
     setResult({
       totalArea: roomArea / 10000, // convert back to m² for display
       tilesNeeded: tilesWithWaste,
       totalCost: Number(totalCost.toFixed(2)),
-      materialCost: Number(materialCost.toFixed(2)),
+      materialCost: Number(totalMaterialCost.toFixed(2)),
       laborCost: Number(laborCost.toFixed(2))
     })
 
@@ -219,6 +219,40 @@ export default function Home() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Cost per Tile ($)</label>
+                  <Input 
+                    type="number" 
+                    placeholder="Enter cost per tile"
+                    value={dimensions.tileCost}
+                    onChange={(e) => setDimensions(prev => ({...prev, tileCost: e.target.value}))}
+                    className="bg-white border-gray-200"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Labor Cost ($/sq ft)</label>
+                  <Input 
+                    type="number" 
+                    placeholder="Enter labor cost per sq ft"
+                    value={dimensions.laborCost}
+                    onChange={(e) => setDimensions(prev => ({...prev, laborCost: e.target.value}))}
+                    className="bg-white border-gray-200"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Additional Material Cost ($)</label>
+                <Input 
+                  type="number" 
+                  placeholder="Enter additional materials cost (grout, spacers, etc.)"
+                  value={dimensions.materialCost}
+                  onChange={(e) => setDimensions(prev => ({...prev, materialCost: e.target.value}))}
+                  className="bg-white border-gray-200"
+                />
+              </div>
+
               <div>
                 <label className="text-sm font-medium mb-2 rounded-lg block">Tile Size (inches)</label>
                 <Input 
@@ -226,17 +260,6 @@ export default function Home() {
                   placeholder="Enter tile size (e.g., 12 for 12x12in)"
                   value={dimensions.tileSize}
                   onChange={(e) => setDimensions(prev => ({...prev, tileSize: e.target.value}))}
-                  className="bg-white border-gray-200"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-2 block">Cost per Tile ($)</label>
-                <Input 
-                  type="number" 
-                  placeholder="Enter cost per tile"
-                  value={dimensions.tileCost}
-                  onChange={(e) => setDimensions(prev => ({...prev, tileCost: e.target.value}))}
                   className="bg-white border-gray-200"
                 />
               </div>
